@@ -354,15 +354,16 @@ class OpenScenarioConfiguration(ScenarioConfiguration):
 
         actor_found = False
 
-        for private_action in self.init.iter("Private"):
-            if private_action.attrib.get('entityRef', None) == actor_name:
+        for private in self.init.iter("Private"):
+            if private.attrib.get('entityRef', None) == actor_name:
                 if actor_found:
                     # pylint: disable=line-too-long
                     self.logger.warning(
                         " Warning: The actor '%s' was already assigned an initial position. Overwriting pose!", actor_name)
                     # pylint: enable=line-too-long
                 actor_found = True
-                for position in private_action.iter('Position'):
+                if private.find('PrivateAction/TeleportAction/Position') is not None:
+                    position = private.find('PrivateAction/TeleportAction/Position')
                     transform = OpenScenarioParser.convert_position_to_transform(
                         position, actor_list=self.other_actors + self.ego_vehicles)
                     if transform:
